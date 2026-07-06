@@ -55,7 +55,12 @@ export async function renderBoxEditor(root, existingId) {
 
       <div class="field">
         <label>תמונות של תכולת הארגז</label>
-        <input type="file" id="photoInput" accept="image/*" capture="environment" multiple>
+        <div class="photo-actions">
+          <button type="button" class="btn btn-secondary" id="takePhotoBtn">📷 צלם תמונה</button>
+          <button type="button" class="btn btn-secondary" id="choosePhotoBtn">🖼️ בחרו מהגלריה</button>
+        </div>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+        <input type="file" id="galleryInput" accept="image/*" multiple hidden>
         <div class="photo-grid" id="photoGrid"></div>
       </div>
 
@@ -124,7 +129,7 @@ export async function renderBoxEditor(root, existingId) {
     }
   });
 
-  wrap.querySelector('#photoInput').addEventListener('change', async (e) => {
+  async function addPhotosFromInput(e) {
     const files = [...e.target.files];
     for (const file of files) {
       const dataUrl = await fileToDataUrl(file);
@@ -132,6 +137,15 @@ export async function renderBoxEditor(root, existingId) {
     }
     e.target.value = '';
     renderPhotos();
+  }
+
+  wrap.querySelector('#cameraInput').addEventListener('change', addPhotosFromInput);
+  wrap.querySelector('#galleryInput').addEventListener('change', addPhotosFromInput);
+  wrap.querySelector('#takePhotoBtn').addEventListener('click', () => {
+    wrap.querySelector('#cameraInput').click();
+  });
+  wrap.querySelector('#choosePhotoBtn').addEventListener('click', () => {
+    wrap.querySelector('#galleryInput').click();
   });
 
   wrap.querySelector('#boxForm').addEventListener('submit', async (e) => {
