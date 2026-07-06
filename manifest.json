@@ -1,6 +1,6 @@
 {
-  "name": "אריזת ארגזים",
-  "short_name": "ארגזים",
+  "name": "BoxTag",
+  "short_name": "BoxTag",
   "description": "ניהול ארגזי מעבר דירה עם תוויות QR",
   "start_url": "./",
   "scope": "./",
