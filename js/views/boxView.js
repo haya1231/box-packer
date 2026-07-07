@@ -49,14 +49,6 @@ export async function renderBoxView(root, id) {
   `;
   root.appendChild(wrap);
 
-  // eslint-disable-next-line no-undef
-  new QRCode(wrap.querySelector('#qrWrap'), {
-    text: boxUrl(box.id),
-    width: 200,
-    height: 200,
-    correctLevel: QRCode.CorrectLevel.M,
-  });
-
   wrap.querySelector('#printBtn').addEventListener('click', () => window.print());
 
   wrap.querySelector('#unpackedBtn').addEventListener('click', async () => {
@@ -65,4 +57,17 @@ export async function renderBoxView(root, id) {
     root.innerHTML = '';
     renderBoxView(root, id);
   });
+
+  try {
+    // eslint-disable-next-line no-undef
+    new QRCode(wrap.querySelector('#qrWrap'), {
+      text: boxUrl(box.id),
+      width: 200,
+      height: 200,
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  } catch (err) {
+    wrap.querySelector('#qrWrap').innerHTML = '<div class="meta">שגיאה בהצגת קוד ה-QR.</div>';
+    console.error(err);
+  }
 }
