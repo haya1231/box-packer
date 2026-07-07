@@ -10,6 +10,7 @@ const PRECACHE_URLS = [
   './js/views/boxEditor.js',
   './js/views/boxView.js',
   './js/views/scanner.js',
+  './js/views/printLabels.js',
   './vendor/qrcode.min.js',
   './vendor/jsQR.js',
   './icons/icon.svg',

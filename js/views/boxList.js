@@ -19,12 +19,26 @@ export async function renderBoxList(root) {
       <option value="">כל החדרים</option>
       ${rooms.map((r) => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('')}
     </select>
+    <button type="button" class="btn btn-secondary" id="selectModeBtn">☑️ בחירה להדפסה</button>
   `;
   wrap.appendChild(toolbar);
+
+  const selectionBar = document.createElement('div');
+  selectionBar.className = 'selection-bar';
+  selectionBar.hidden = true;
+  selectionBar.innerHTML = `
+    <span id="selectionCount">נבחרו 0 ארגזים</span>
+    <button type="button" class="btn btn-secondary" id="cancelSelectionBtn">ביטול</button>
+    <button type="button" class="btn btn-primary" id="printSelectionBtn" disabled>🖨️ הדפסת מדבקות</button>
+  `;
+  wrap.appendChild(selectionBar);
 
   const listEl = document.createElement('div');
   wrap.appendChild(listEl);
   root.appendChild(wrap);
+
+  let selectionMode = false;
+  const selectedIds = new Set();
 
   function renderList() {
     const search = toolbar.querySelector('#searchInput').value.trim().toLowerCase();
@@ -44,8 +58,12 @@ export async function renderBoxList(root) {
     listEl.innerHTML = filtered.map((b) => {
       const itemCount = (b.items || []).length;
       const photoCount = (b.photos || []).length;
+      const checkbox = selectionMode
+        ? `<input type="checkbox" class="select-box" data-id="${b.id}" ${selectedIds.has(b.id) ? 'checked' : ''}>`
+        : '';
       return `
         <a href="#/box/${encodeURIComponent(b.id)}" class="box-card ${b.unpacked ? 'unpacked' : ''}">
+          ${checkbox}
           <div class="box-info">
             <h3 class="${b.unpacked ? 'unpacked-label' : ''}">${escapeHtml(b.name)}</h3>
             ${b.room ? `<span class="room-tag">${escapeHtml(b.room)}</span>` : ''}
@@ -60,6 +78,28 @@ export async function renderBoxList(root) {
         </a>
       `;
     }).join('');
+
+    if (selectionMode) {
+      listEl.querySelectorAll('.box-card').forEach((card) => {
+        card.addEventListener('click', (e) => {
+          e.preventDefault();
+          const checkbox = card.querySelector('.select-box');
+          checkbox.checked = !checkbox.checked;
+          checkbox.dispatchEvent(new Event('change'));
+        });
+      });
+
+      listEl.querySelectorAll('.select-box').forEach((checkbox) => {
+        checkbox.addEventListener('click', (e) => e.stopPropagation());
+        checkbox.addEventListener('change', () => {
+          const id = checkbox.dataset.id;
+          if (checkbox.checked) selectedIds.add(id);
+          else selectedIds.delete(id);
+          updateSelectionBar();
+        });
+      });
+      return;
+    }
 
     listEl.querySelectorAll('.toggle-unpacked').forEach((btn) => {
       btn.addEventListener('click', async (e) => {
@@ -87,6 +127,31 @@ export async function renderBoxList(root) {
       });
     });
   }
+
+  function updateSelectionBar() {
+    selectionBar.querySelector('#selectionCount').textContent = `נבחרו ${selectedIds.size} ארגזים`;
+    selectionBar.querySelector('#printSelectionBtn').disabled = selectedIds.size === 0;
+  }
+
+  toolbar.querySelector('#selectModeBtn').addEventListener('click', () => {
+    selectionMode = true;
+    selectedIds.clear();
+    selectionBar.hidden = false;
+    updateSelectionBar();
+    renderList();
+  });
+
+  selectionBar.querySelector('#cancelSelectionBtn').addEventListener('click', () => {
+    selectionMode = false;
+    selectedIds.clear();
+    selectionBar.hidden = true;
+    renderList();
+  });
+
+  selectionBar.querySelector('#printSelectionBtn').addEventListener('click', () => {
+    if (selectedIds.size === 0) return;
+    location.hash = `#/print/${[...selectedIds].map(encodeURIComponent).join(',')}`;
+  });
 
   toolbar.querySelector('#searchInput').addEventListener('input', renderList);
   toolbar.querySelector('#roomFilter').addEventListener('change', renderList);

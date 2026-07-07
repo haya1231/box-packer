@@ -2,6 +2,7 @@ import { renderBoxList } from './views/boxList.js';
 import { renderBoxEditor } from './views/boxEditor.js';
 import { renderBoxView } from './views/boxView.js';
 import { renderScanner } from './views/scanner.js';
+import { renderPrintLabels } from './views/printLabels.js';
 
 const appEl = document.getElementById('app');
 
@@ -16,6 +17,9 @@ function parseRoute(hash) {
     return { view: 'edit', id: decodeURIComponent(parts[1]) };
   }
   if (parts[0] === 'box' && parts[1]) return { view: 'box', id: decodeURIComponent(parts[1]) };
+  if (parts[0] === 'print' && parts[1]) {
+    return { view: 'print', ids: decodeURIComponent(parts[1]).split(',').filter(Boolean) };
+  }
   return { view: 'list' };
 }
 
@@ -30,6 +34,7 @@ async function render() {
     if (route.view === 'edit') return await renderBoxEditor(appEl, route.id);
     if (route.view === 'box') return await renderBoxView(appEl, route.id);
     if (route.view === 'scan') return await renderScanner(appEl);
+    if (route.view === 'print') return await renderPrintLabels(appEl, route.ids);
     return await renderBoxList(appEl);
   } catch (err) {
     appEl.innerHTML = `<div class="empty-state">אירעה שגיאה בטעינת המסך.<br>${err.message || err}</div>`;

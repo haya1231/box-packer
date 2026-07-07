@@ -97,6 +97,31 @@ main#app {
   font-size: 0.95rem;
 }
 
+.selection-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.selection-bar[hidden] {
+  display: none;
+}
+
+.selection-bar span {
+  flex: 1;
+  font-weight: 600;
+}
+
+.select-box {
+  width: 20px;
+  height: 20px;
+}
+
 .box-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -302,6 +327,17 @@ form.box-form {
   color: var(--muted);
 }
 
+.label-sheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+.label-sheet .label-card {
+  max-width: 320px;
+}
+
 @media print {
   .app-header, .box-actions, .no-print { display: none !important; }
   main#app { padding: 0; max-width: none; }
@@ -318,5 +354,12 @@ form.box-form {
     align-items: center;
     justify-content: center;
     page-break-inside: avoid;
+  }
+  .label-sheet {
+    gap: 0;
+  }
+  .label-sheet .label-card {
+    max-width: none;
+    margin: 0;
   }
 }
